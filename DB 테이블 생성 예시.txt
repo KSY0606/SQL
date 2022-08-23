@@ -1,0 +1,20 @@
+conn 사용자명/비밀번호   // 로그인해주기
+
+// 18c 버전이후 일 경우
+1 == create user c##사용자계정이름 identified by 비밀번호
+2-1 == alter session set "_ORACLE_SCRIPT"=true;
+2-2 == create user 사용자계정이름 identified by 비밀번호;
+
+grant create session to 사용자계정이름;   // 출력 : 권한 부여
+
+grant create table to 사용자계정이름;   // 권한 생성해주기
+
+alter user 사용자계정이름 default tablespace users quota unlimited on users;
+
+conn 사용자계정이름/비밀번호;   // 출력 : 연결됨
+
+CREATE TABLE 테이블명 (컬럼명1 데이터타입,컬럼명2 데이터타입,.....);
+ //  ex)  create table producttbl(productid varchar2(10), productname varchar2(12), amount number(4), price number(7), maker varchar2(10));
+INSERT INTO 테이블명 VALUES(값,값,값.....);
+ //  ex) insert into producttbl values('lg6952', '청소기', 12, 750000, '엘지');
+

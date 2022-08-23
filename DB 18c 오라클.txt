@@ -1,0 +1,307 @@
+질의어 (DQL : Data Query Language) - SELECT(데이터 검색)
+
+데이터 조작어 (DML : Data Manipulation Language)
+- INSERT (데이터 입력)  ex) 회원가입시 정보들이 저장
+- UPDATE (데이터 수정) ex) 회원가입수정(메일,주소)
+- DELETE (데이터 삭제)  ex) 회원탈퇴
+
+데이터 정의어 (DDL : Data Definition Language)
+- CREATE (데이터 베이스 객체 생성)
+- ALTER (데이터 베이스 객체 변경)
+- DROP (데이터 베이스 객체 삭제)
+
+Table이 모여서 데이터베이스가 됨
+
+Table  하나의 표 형식
+  field  = (열)  = column
+recode = (행) = row
+
+dual 오라클에서 제공하는 기본테이블
+
+===================================
+8 / 23
+
+문자 데이터 타입 = 테이블 생성시 사용하는 데이터타입
+char(크기) - 고정길이 문자
+varchar2(크기) - 가변길이 문자 
+※ 가변길이 : 실제 입력된 크기에 따라 변화
+nvarchar2(크기) - 가변길이 유니코드 문자 (다국어 입력가능)
+
+숫자 데이터 타입
+number(p,s) - p(정밀도) - 최대유효숫자 자릿수
+	    - s - 소수점 기준 자리수
+ ex) number(3)에 123.54를 입력시 반올림되 124가 출력
+      nunber(3,2)  123.54 입력시 오류
+      nunber(5,2)  123.54 입력시 123.54 출력
+      nunber(7,1)  123.54 입력시 123.5 출력
+      nunber(7,-1)  123.54 입력시 120 출력 일의 자리에서 반올림
+      nunber(7,-1)  125.54 입력시 130 출력
+
+날짜 데이터 타입
+date
+
+LOB 데이터 타입
+BLOB - 바이너리 대용량 데이터
+CLOB - 텍스트 대용량 데이터
+
+NOT NULL을 붙이면 반드시 데이터가 들어가야함.
+ ex 1) CREATE TABLE dept(dno number(2), dname varchar2(15) NOT NULL, loc varchar2(15));
+ ex 1)  insert into values(40 , '', '강남구');   //dname은 NOT NULL이므로 미입력시 오류발생
+
+UNIQUE - 유일해야하는 데이터에 사용
+ ex 2) CREATE TABLE dept(dno number(2) UNIQUE, dname varchar2(15) NOT NULL, loc varchar2(15));
+
+UNIQUE + NOT NULL = PRIMARY KEY - 유일한 키 ( ex)아이디, 주민번호, 사원번호 등 ) 테이블당 1번만 가능
+ ex 3) CREATE TABLE dept(dno number(2) PRIMARY KEY, dname varchar2(15) NOT NULL, loc varchar2(15));
+
+외래키 (Foreign key) - 테이블간의 참조 데이터 무결성 위한 제약 조건
+
+CREATE TABLE employee(eno number(4), ename varchar2(10).....
+dno CONSTRAINT emp_dno_fk REFERENCES department,
+gender varchar2(10) constraints gencheck check in('male', 'female'));
+
+테이블 복사 방법
+CREATE TABLE 테이블명 AS SELECT 필드명 FROM 복사할 테이블명;
+ ex) create table dept_copy as select * from department;
+  ㄴ *는 필드 전부를 복사한다는 뜻 (* 말고 일부만 적어서 가능)
+
+테이블 구조 복사
+CREATE TABLE 테이블명 AS SELECT 필드명 FROM 복사할 테이블명 WHERE 0=1;
+ ex) create table dept_copy2 as select dno, dname from department where 0=1;
+
+테이블 삭제 방법  ( 삭제하면 복구 불가)
+drop table 삭제 할 테이블명;
+drop table 삭제 할 테이블명 cascade constraints; (참고) 	
+
+테이블 변경
+ALTER TABLE 테이블명 RENAME COLUMN 변경 전 컬럼명 TO 변경 후 컬럼명;
+ ex) alter table dept_copy rename column dname to dnoname;
+
+타입 변경
+ALTER TABLE 테이블명 MODIFY 컬럼명 변경할타입;
+ ex) alter table dept_copy modify dnoname varchar2(20);
+
+컬럼 추가
+ALTER TABLE 테이블명 ADD 컬럼명 데이터타입;
+ ex) alter table dept_copy add birth date;
+컬럼 제거
+ALTER TABLE 테이블명 DROP COLUMN 컬럼명;
+ ex) alter table dept_copy drop column birth;
+
+제약조건 추가
+ALTER TABLE 테이블명 ADD CONSTRAINTS 제약조건명 PRIMARY KEY (컬럼명);
+ ex) alter table dept_copy add constraints dno_pk primary key (dno);
+제약조건 제거
+ALTER TABLE 테이블명 DROP CONSTRAINTS 제약조건명;
+ ex) alter table dept_copy drop constraints dno_pk;
+
+테이블의 모든 데이터를 제거
+truncate table 테이블명;
+
+*DDL*
+INSERT INTO employee_copy (eno, ename, job) values(8652, '김상윤', 'clerk');
+INSERT INTO employee_copy values(8888, '홍길동', 'SALESMAN', 7902, '22/08/23', 900, 0, 30);
+INSERT INTO employee_copy values(8000, '이영희', 'CLERK', 7902, SYSDATE, 800, 0,20);
+INSERT INTO employee_copy values(8200, '박찬호', 'SALESMAN', 7499, TO_DATE('2022,05,07', 'YYYY,MM, DD'), 800, 0,30);
+TO_DATE('2022,05,07', 'YYYY,MM, DD')
+TO_DATE(sysdate-1, 'yy/mm/dd') 도 가능 (어제날짜를 표시할때)
+SYSDATE 현재 날짜
+
+*DML*
+테이블의 내용을 수정하는 UPDATE
+UPDATE 테이블명 SET 변경컬럼명=변경할값,...WHERE 조건;   // where 조건을 꼭 작성
+ ex 1)  update dept_copy set dnoname='programming' where dno='10';
+ ex 2) update dept_copy set dnoname='programming', loc='seoul' where dno=10;
+   ※ where 조건 을 안써주면 전부 바뀌어버림.
+
+테이블의 내용을 삭제하는 DELETE
+  //  DELETE from 테이블명 WHERE 조건;   // from은 생략가능
+DELETE 테이블명 WHERE 조건;   // where 조건을 꼭 작성
+ ex) delete employee_copy where eno = 7876;
+   ※ where 조건 을 안써주면 전부 삭제됨.
+
+롤백
+rollback;   처음상태로 돌려줌
+
+commit;   지금까지 작업한 내용이 저장됨, 이후로 rollback 안됨
+
+
+//////////
+INSERT INTO 테이블명 VALUES(값,값,값.....);
+ ex)  insert into dept values(40 ,'경리부', '강북구');   //dno, dname, loc 테이블에 입력시 예시임
+insert into 테이블명(컬럼1,컬럼2) values(값,값);
+ ex) insert into dept(dno, dname) values(40, '경리부');
+//////////
+=====================================
+8 / 19
+문자 데이터 타입
+컬럼명 between A and B - 특정컬럼의 데이터값이
+하한값(A)와 상한값(B) 사이에 포함되는 자료 검색
+ex) select * from employee where salary beetween 1000 and 1500;
+    ㄴ 1000 ~ 1500 사이 출력
+     between 앞에 not을 붙여주면 0~999와 1501~ 를 출력
+
+컬럼명 IN(값, 값, 값, ...)
+  ㄴ IN 앞에 not 을 붙이면 (값, 값, 값)을 제외하고 출력
+
+와일드카드(%) 사용검색    =를 쓰지않고 like를 써줘야함
+ex ) select * from employee where ename like 'F%';
+     ㄴ 이름은 잘모르는데 F로 시작하는 이름. 을 출력
+     ㄴ '%F%'로 입력 할 경우 F가 포함되어있는 값을 출력
+     ㄴ '%F'로 입력 할 경우 F로 끝나는 값을 출력
+     ㄴ '_전자' _를 붙이면 1글자만 올 수 있음 2개붙이면 2글자
+     ㄴ ex) 삼성전자abc 가 있을 경우 '__전자%'로 출력 가능
+
+is
+select * from employee where commission is null;
+ ㄴ commission이 빈칸인 것들만 출력해줌,  0은 null값아님!
+ ㄴ is not null; 은 null 값이 아닌 것만 출력해줌
+
+정렬을 위한 order by 라는 절이 있다.
+order by 컬럼명 asc;   오름차순
+ex) select * from employee order by salary asc;   
+ㄴ asc는 생략가능하다.
+order by 컬럼명 desc;   내림차순
+
+
+================= 예시 =================
+select * from employee
+ㄴ	select - 데이터 조회할때 사용
+	* - 모든 칼럼(열) 조회
+	employee - 테이블 이름
+
+select eno, ename, salary from employee; 
+employee의 eno, ename, salary만 보여줌
+// 내가 보고싶은 데이터를 입력해주면 된다
+
+select ename, salary, salary*12
+// salary*12는 없는 칼럼이지만 산술연산자를 이용해 출력가능
+
+salary*12+commission 도 가능하다.
+// null(빈칸)일 경우 값이 출력되지 않음, commission 값이 없음
+
+salary*12+nvl(commission,0)
+commission이 빈칸인데도 nvl()를 써주면 출력가능
+
+select ename 이름, salary*12+nvl(commission,0) 연봉 from employee;
+// 컬럼뒤에 별칭을 주면 컬럼제목이 변경되어 출력됨
+// 별칭에 띄어쓰기, 특수문자를 넣을때는 ' '로 묶어줘야한다.
+
+select distinct dno from employee;
+// employee테이블에 dno컬럼 중 중복되는 것을
+    제외시키고 몇개가 있는지 보여줌
+=====================================
+질의어
+ENO 사원번호필드
+ENAME 사원명
+JOB 업무명
+MANAGER 해당 사원의 상사번호
+HIREDATE 입사일
+SALARY 급여
+COMMISSION 특별수당, 성과금
+DNO 부서번호
+DNAME 부서이름
+LOC 지역명(부서가 위치하는곳)
+
+desc  테이블 구조를 살펴보는 명령
+select문 - 테이블에 저장된 데이터를 검색하는 명령문
+select 컬럼이름 from 테이블명;
+set linesize 130 - 기본적으로 80자를 보여줌, 이 명령문 입력시
+130자로 바뀜
+select 컬럼이름 from 테이블명 where 조건;
+ex) select * from employee where salary >= 1500;
+ex) select * from employee where dno = 10;
+ex) select * from employee where ename = 'SCOTT';
+ex) select * from employee where hiredate <= '1981/01/01';
+ec) select * from employee where dno = 10 and job = 'MANAGER';
+ ㄴ and를 써주면서 dno, job 모두 만족하는 레코드만 출력됨
+      or를 써주면 둘 중 하나라도 만족한다면 출력됨
+ex) select * from employee where not dno = 10;
+ ㄴ not을 써주면서 dno = 10이 아닌 레코드들만 출력됨
+     not 쓰지 않고 select * from employee where dno <> 10;
+     select * from employee where dno != 10;
+     select * from employee where dno ^= 10; 도 가능함	
+
+==================================
+List -  단축키(L), 버퍼에 저장된 내용을 출력하기 위해 사용되는 명령어
+/ - 최근 사용한 SQL문을 바로 실행시켜줌
+RUN - 단축키(R),  버퍼에 저장된 SQL문을 보여주고 바로 실행시켜줌
+HOST - dos환경으로 나가는 명령어
+EXIT - SQL Plus로 돌아가는 명령어
+EDIT - 파일의 내용을 메모장으로 읽어 편집할 수 있도록 하는 명령어
+ ㄴ ex) EDIT 파일이름
+SAVE - SQL문을 파일에 저장해둘때 사용하는 명령어 (확장자.sql)
+ ㄴ ex) SAVE 파일이름
+ ㄴ ex) save sample replace 이미 있던 파일에 덮어씌우기
+@파일이름 - 파일 안의 내용을 전부 실행해줌
+SPOOL 파일이름 (확장자lst)
+SPOOL OFF - 기록을 마침
+==================================
+8 / 22
+
+사용자 계정 생성
+
+오라클 11g 
+create user 사용자계정이름 identified by 비밀번호;로 입력함
+create user 사용자계정이름 identified by 비밀번호
+default tablespace 테이블스페이스명
+quota unlimited on 테이블스페이스명;
+grant DBA TO 사용자계정이름;
+
+오라클 18c 이후로는 
+create user c##사용자계정이름 identified by 비밀번호; 로 입력해야함
+
+alter session set "_ORACLE_SCRIPT"=true; 를 작성하면
+create user 사용자계정이름 identified by 비밀번호; 로 입력가능!
+
+grant create session to 사용자계정이름;
+grant connect, resource to 사용자계정이름; - 자원을 만들 수 있는 권한부여
+alter user 사용자계정이름 default tablesapce users quota unlimited on users;
+
+******************만드는법 (중요함)**********************
+8 / 22
+
+conn system/dkseho1!  (로그인해주기)
+create user c##사용자계정이름 identified by 비밀번호;
+경고: 이제는 ORACLE에 연결되어 있지 않습니다. ( 경고가 뜨면 로그인을 다시 해줘야함)
+conn system/dkseho1!
+
+grant create session to 사용자계정이름;   (출력 : 권한 부여됨)
+
+conn 사용자계정이름/비밀번호;   (출력 : 연결됨)
+
+show user   (출력 : "사용자계정이름"입니다)
+
+※테이블을 만드려면 테이블 생성권한도 필요함!
+(권한 생성을 해주지않아서 "권한이 불충분합니다"가 출력되면 다시 conn system/dkseho1! 입력해서 로그인 해줘야함)
+grant create table to 사용자계정이름;   (권한생성)
+conn 사용자계정이름/비밀번호; (권한생성 후 로그인해줘야함)
+CREATE TABLE 테이블명 (컬럼명1 데이터타입,컬럼명2 데이터타입,.....);
+alter user 사용자계정이름 default tablespace users quota unlimited on users;
+(테이블스페이스에 권한부여해주기) (unlimited는 용량으로 100m  20m 이렇게 사용가능) // 100m = 100메가  20m = 20메가
+INSERT INTO 테이블명 VALUES(값,값,값.....);   ( ex) 10줄이면 이런식으로 10번 반복)
+select * from 테이블명;
+
+	*** 테이블 만드는 순서 ***
+사용자 계정 생성 => 테이블 생성 => 자료입력
+테이블 생성 방법
+CREATE TABLE 테이블명 (컬럼명1 데이터타입,컬럼명2 데이터타입,.....);
+ ㄴ ex) CREATE TABLE employee(eno number(4),ename varchar2(10),job varchar2(9),hiredate date);
+
+==================================
+권한 제거 = 
+시스템 연결
+revoke create session from testdb2;
+
+다시 권한부여 = 
+시스템 연결
+grant create session to testdb2;
+
+==================================
+
+
+로그인 할 경우
+사용자명 : system
+비밀번호 : dkseho1!
+conn hr/9506
+을 입력해주면 사용 가능해짐.

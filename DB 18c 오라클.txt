@@ -185,7 +185,7 @@ commission이 빈칸인데도 nvl()를 써주면 출력가능
 
 select ename 이름, salary*12+nvl(commission,0) 연봉 from employee;
 // 컬럼뒤에 별칭을 주면 컬럼제목이 변경되어 출력됨
-// 별칭에 띄어쓰기, 특수문자를 넣을때는 ' '로 묶어줘야한다.
+// 별칭에 띄어쓰기, 특수문자를 넣을때는 " "로 묶어줘야한다.
 
 select distinct dno from employee;
 // employee테이블에 dno컬럼 중 중복되는 것을

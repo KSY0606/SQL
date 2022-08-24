@@ -11,3 +11,177 @@ initcap : 첫글자만 대문자로 나머지는 소문자로 변환
 length : 문자길이를 알려줌
 
 lengthb : byte로 나타냄
+
+==========================08 / 24
+
+CONCAT: 문자열을 결합하는 함수
+ex) select '풀스택반', '화이팅', concat('풀스택반', '화이팅') from dual;
+
+SUBSTR(대상, 시작위치, 추출할 개수) : 문자열을 추출
+ex ) select * from employee where substr(ename,-1,1)='N';
+ㄴ N으로 끝나는 사원 출력하기
+ex) select substr('computer', 4, 3), substr('computer', -3, 3) from dual;
+
+INSTR(대상, 찾을 문자, 시작위치, ,몇번째 발견) : 특정문자의 위치값을 반환
+ex 1) select instr('computer', 'm') from dual;
+ㄴ computer에 m이 몇번째 위치인지 알려줌.  시작위치, 몇번째발견은 생략함.
+ex 2) select instr ('computer maniama', 'm', 5, 2) from dual;
+ㄴ 5번째(u)부터 2번째 m까지의 길이 출력
+// 이름의 세번쨰 자리가 'R'인 사원을 검색하여 추출
+// select * from employee where instr(ename, 'R', 3, 1) = 3;
+
+LPAD, RPAD  => 입력받은 문자열과 기호를 정렬하여 특정 길이의 문자열로 반환
+※ LPAD 레프트패딩,   RPAD 라이트패딩
+ex) 
+select lpad(salary, 10, '*') from employee;
+대상값을 오른쪽에 채우고 왼쪽 남는 공간은 *로 10자리를 채움
+    ******1300
+select rpad(salary, 10, '*') from employee;
+대상값을 왼쪽에 채우고 오른쪽 남는 공간은 *로 10자리를 채움
+    2450******
+
+TRIM : 잘라내고 남은 문자를 표시
+ex 1) select trim ('   computer     ') from dual;
+ex 2) select trim ('c' from 'computer') from dual;
+ㄴ 맨처음이나 맨끝 문자를 잘라낼 수 있음, 중간문자는 안됨
+
+
+
+*****숫자 함수*****
+
+CEIL : 올림
+ex) select ceil(10.123), ceil(10.621), ceil(10.001) from dual;
+   ㄴ 값 11    11    11	// 정수를 반환함
+
+FLOOR : 버림
+ex) select floor(10.123), floor(10.621), floor(10.001) from dual;
+   ㄴ 값 10    10    10	// 정수를 반환함
+
+ROUND : 반올림
+ex) select round(98.7654), round(98.7654,2),round(98.7654,-1) from dual;
+   ㄴ 값 99    98.77    100
+ ()안에 ,2는 소수3째자리에서 반올림시켜 소수점2째자리까지 출력
+ ()안에 ,-1을 입력시 1의자리에서 반올림이 되어 출력됨
+
+TRUNC : 특정자리수를 잘라냄
+ex) select trunc(98.7654), trunc(98.7654,2),trunc(98.7654,-1) from dual;
+   ㄴ 값 98    98.76    90
+
+MOD : 나머지를 알려줌   ex)  mod(5,2) = 5/2 나머지1
+ex) select mod(31,2), mod(31,5), mod(31,8) from dual;
+   ㄴ 값 1    1    7
+
+
+
+*****날짜 함수*****
+
+오늘날짜를 알려줌.
+select sysdate from dual;     오늘
+select sysdate+1 from dual;  내일
+select sysdate-1 from dual;   어제
+
+select sysdate-hiredate 근무일수 from employee;
+select round(sysdate-hiredate) 근무일수 from employee;
+
+MONTHS_BETWEEN(data1,date2) : 날짜와 날짜 사이의 개월 수
+ex) select trunc(months_between(sysdate, hiredate)) from employee;
+
+ADD_MONTHS(date,n) : 특정 개월 수를 더한 날짜
+ex) select ename, hiredate, add_months(hiredate,6) from employee;
+
+NEXT_DAY(date,요일)
+ex) select sysdate, next_day(sysdate, '토요일') from dual;
+작성한 날짜로부터 최초로 도달하는 일자를 출력
+ex) select sysdate, next_day(sysdate, 1) from dual;
+일요일은 1 월요일은 2 ... 토요일은 7
+
+LAST_DAY(날짜) : 해당 날짜가 속한 달의 마지말 날짜를 반환
+ex) select ename, hiredate, last_day(hiredate) from employee;
+
+
+*****형 변환 함수*****
+
+TO_CHAR : 날짜형 혹은 숫자형을 문자형으로 변환
+TO_DATE : 문자형을 날짜형으로 변환
+TO_NUMBER : 문자형을 숫자형으로 변환
+
+YYYY 연도 표현(4자리)   YY 연도표현(2자리)
+MM 월을 숫자로 표현   MON 월을 문자로 표현
+DAY 요일 표현   DY 요일을 약어로 표현
+
+///// 날짜형을 문자형으로
+ex) select ename, hiredate, to_char(hiredate, 'yy-mm'), to_char(hiredate, 'yyyy/mm/dd day') from employee;
+ex) select to_char(sysdate, 'yyyy-mm-dd, hh24:mi:ss') from dual;
+ㄴ  hh24 = 24시간으로 표현됨 , mm은 '달' mi는 '시'  ss는 '초'
+
+///// 숫자형을 문자형으로
+ex) select ename, to_char(salary, '00000000') from employee;
+ㄴ salary를 표시하고 남은 자리수는 0으로 채워짐
+ex) select ename, to_char(salary, '9,999,999') from employee;
+ㄴ ,를 기준으로 ,를 찍어 출력해줌
+ex) select ename, to_char(salary, 'L9,999,999') from employee;
+ㄴ  L은 각 지열별 통화기호를 붙여줌  ex) \5,000     \2,800
+
+select ename, hiredate from employee where hiredate = to_date(19810220);
+select to_number('100000')-to_number('50000') from dual;
+ㄴ 문자끼리는 연산이 안되기 때문에 숫자로 변환
+
+*****일반함수*****
+
+NVL(수식 또는 값, 수식 또는 값) : null 값을 0 또는 다른 값을 반환
+ex ) select ename salary, commission, salary*12+nvl(commission,0) from employee order by job;
+
+NVL2(ex1, ex2, ex3) : ex1을 검사하여 결과가 null이 아니면 
+		   ex2를 반환하고, null이면 ex3을 반환.
+ex) select ename salary, commission, nvl2(commission,salary*12+commission, salary*12) from employee order by job;
+
+NULLIF(ex1, ex2) : 두 표현식을 비교해 동일한 경우 null 반환
+		동일하지 않으면 첫번째 표현식 반환.
+
+COALESCE(ex1, ex2, ...exn)
+select ename, salary, commission, coalesce(commission, salary, 0) from employee order by job;
+    ㄴ coalesce(commission, salary, 0)  commission이 없으면 salary가 출력, salary도 없으면 0이 출력됨
+
+DECODE(표현식, 조건1, 결과1, 조건2, 결과2, 조건3, 결과3 ... 결과N)
+ㄴ 자바의 switch와 비슷.
+ex) select ename, dno, decode(dno, 10, 'accounting', 20, 'research', 30, 'salesman', 40, 'operations', 'default') as dname from employee;
+ㄴ 10이면 accounting 20이면 research ... 이외는 default가 출력
+
+CASE 수식   // 수식이 조건1과 비슷하면 결과1, 2와 비슷하면 결과2
+WHEN 조건1 THEN 결과1         // if else와 비슷
+WHEN 조건2 THEN 결과2
+WHEN 조건3 THEN 결과3
+....
+ELSE 결과 N 
+END
+
+ex) select ename, dno,
+    case when dno = 10 then 'accounting' 
+    when dno = 20 then 'research' 
+    when dno = 30 then 'salesman' 
+    when dno = 40 then 'operations' 
+    else 'default' 
+    end
+    as dname from employee;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

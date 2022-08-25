@@ -165,22 +165,99 @@ ex) select ename, dno,
     as dname from employee;
 
 
+=========================8 / 25
 
+*****그룹함수*****
 
+SUM : 그룹의 누적합계
+AVG : 그룹의 평균
+COUNT : 그룹의 총 개수
+MAX : 그룹의 최대값
+MIN : 그룹의 최소값
 
+select sum(salary) as 급여총액, AVG(salary) as 급여평균, max(salary) as "최대 급여", min(salary) 최소급여 from employee;
+select max(hiredate), min(hiredate) from employee;
+select sum(commission) as "커미션 총액" from employee;
+select count(*) as "전체 사원수" from employee;
+ㄴ 레코드(행)의 개수를 알려줌
+select count(commission) as "커미션 받는 사원수" from employee;
+ㄴ null값이 아닌 레코드(행)의 개수를 알려줌
+	↓ 위 설명과 동일  
+select count(*) as "커미션 받는 사원수" from employee where commission is not null;
+select count(distinct job) as "직업 종류의 개수" from employee;
+ㄴ distinct : 중복되는것은 1번만 카운트함
 
+데이터그룹 : GROUP BY 절
+select dno as "부서번호", avg(salary) as "급여평균" from employee group by dno;
+ㄴ  group by dno : 부서별로 묶어서 급여평균이 출력됨.
 
+그룹 결과 제한 : HAVING 절
+select dno,max(salary) from employee group by dno having max(salary) >= 3000;
+select job, count(*), sum(salary) from employee where job not like '%MANAGER%' group by job having sum(salary) >= 5000 order by sum(salary);
 
+문제~~
+1) 모든사원의 급여 최고액,최저액,총액 및 평균 급여를 출력하시오. 평균은 정수로 반올림하시오
+ select max(salary), min(salary), sum(salary), floor(avg(salary)) from employee;
 
+2) 담당업무 유형별 급여 최고액, 최저액 총액 및 평균 급여를 출력하시오. 평균은 정수로 반올림하시오
+select job, max(salary), min(salary), sum(salary), floor(avg(salary)) from employee group by job;
 
+3) 담당업무가 동일한 사원수를 출력하시오.
+select job 담당업무, count(*) 사원수 from employee group by job;
 
+4) 관리자 수를 나열하시오.
+select count(manager) 관리자수 from employee;
 
+5) 급여 최고액과 급여 최저액의 차액을 출력하시오.
+select max(salary) - min(salary) 급여차액 from employee;
 
+6) 직급별 사원의 최저 금액을 출력하시오 (단, 최저급여가 2000 미만인 그룹은 제외시키고 급여에 대한 내림차순으로 정렬하여 출력하시오.)
+select job, min(salary) from employee group by job having min(salary) > 2000 order by min(salary)desc;
 
+7) 각 부서에 대해 사원수와 평균 금여를 출력하시오. (평균 급여는 소수점2째자리로 반올림)
+select decode(dno,10,'ACCOUNTING', 20,'research', 30,'salesman') 부서이름, count(*) 사원수, round(avg(salary),2) 평균급여 from employee group by dno;
 
+==================================
 
+조인 - 여러 테이블에 저장된 데이터를 한번에 조회해야 할 필요가 있을때 사용
+조인은 2개 이상의 테이블을 결합한다는 의미
+select * from employee, department;
+ㄴ 조인 조건없이 모든 조합을 표시하는 카디시안 곱
 
+EQUI JOIN : (equal) 비교를 통해 같은 값을 가지는 행을 연결하여 결과를 생성하는 조인방법
+ : select table1.column, table2.column, ... from table1, table2 where table1.column = table2.column;
+ex) select * from employee, department where employee.dno = department.dno;
+ex) select eno, ename, dname from employee, department where employee.dno = department.dno and eno = 7788;
 
+select eno, ename, dname from employee, department where employee.dno = department.dno and eno = 7788;
+	↓ 로 바꾸면 오류없이 잘 출력됨. (dno가 employee와 department에 둘 다 있기 때문에 오류 발생)
+select employee.eno, employee.ename, department.dname, employee.dno from employee, department where employee.dno = department.dno and employee.eno = 7788;
+(위와 동일 !) select eno, ename, dname, employee.dno from employee, department where employee.dno = department.dno and eno = 7788;
+
+NATURAL JOIN : 오라클에서 자동적으로 테이블의 모든 컬럼을
+ 대상으로 일치하는 데이터 유형 및 이름을 가진 공통 컬럼을
+ 조사한 후 자동으로 조인을 수행해주는 키워드
+ex) select e.eno, e.ename, d.dname, dno from employee e natural join department d where e.eno = 7788;
+JOIN ~ USING : 
+ex) select e.eno, e.ename, d.dname, dno from employee e join department d using(dno) where e.eno = 7788;
+JOIN ~ ON : 
+ex) select e.eno, e.ename, d.dname, e.dno from employee e join department d on e.dno = d.dno where e.eno = 7788;
+
+NON-EQUI JOIN : where 절에 <, between a AND b , = 조건이 아닌 연산자를 사용
+
+SELF JOIN : 하나의 테이블에 있는 컬럼끼리 연결해야 하는
+	 조인이 필요한 경우에 사용
+ex) select emp.ename as "사원이름", mag.ename as "직속상관이름" from employee emp, employee mag where emp.manager = mag.eno;
+※ SELF JOIN은 반드시 별칭을 이용해야함.
+
+OUTER JOIN : EQUI JOIN의 조건에서 어느 한쪽이 NULL값이면
+ 	조인 결과로 얻어지지 않는다.
+OUTER JOIN은 +연산자를 이용해 NULL이 존재하는 테이블에도
+	결과를 출력할 수 있다.
+ex) select emp.ename || '의 직속 상관은' || mag.ename from employee emp, employee mag where emp.manager = mag.eno(+);
+ㄴ (SELF JOIN의 ex)에서 맨뒤에 (+)를 추가해줌.
+	↓ 위와 결과는 동일
+ex) select emp.ename || '의 직속 상관은' || mag.ename from employee emp left outer join employee mag on emp.manager = mag.eno(+);
 
 
 

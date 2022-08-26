@@ -247,7 +247,8 @@ NON-EQUI JOIN : where 절에 <, between a AND b , = 조건이 아닌 연산자�
 
 SELF JOIN : 하나의 테이블에 있는 컬럼끼리 연결해야 하는
 	 조인이 필요한 경우에 사용
-ex) select emp.ename as "사원이름", mag.ename as "직속상관이름" from employee emp, employee mag where emp.manager = mag.eno;
+ex 1) select emp.ename as "사원이름", mag.ename as "직속상관이름" from employee emp, employee mag where emp.manager = mag.eno;
+ex 2) select other.ename, other.hiredate from employee ward, employee other where other.hiredate > ward.hiredate and ward.ename = 'WARD' order by hiredate;
 ※ SELF JOIN은 반드시 별칭을 이용해야함.
 
 OUTER JOIN : EQUI JOIN의 조건에서 어느 한쪽이 NULL값이면
@@ -258,6 +259,62 @@ ex) select emp.ename || '의 직속 상관은' || mag.ename from employee emp, e
 ㄴ (SELF JOIN의 ex)에서 맨뒤에 (+)를 추가해줌.
 	↓ 위와 결과는 동일
 ex) select emp.ename || '의 직속 상관은' || mag.ename from employee emp left outer join employee mag on emp.manager = mag.eno(+);
+
+
+========================8 / 26
+
+서브쿼리 : 쿼리문에 삽입된 SELECT문을 말한다.
+select 컬럼명 from 테이블명 where ex1 operator( select 컬럼명 from 테이블명 where 조건);
+ex 1) select ename, salary from employee where salary > (select salary from employee where ename = 'SCOTT');
+ ㄴ ex2) select salary from employee where ename = 'SCOTT';
+     ex2) select ename , salary from employee where salary > 3000;
+     ㄴ ex2 2개를 치지않고 ex1처럼 1줄로 작성가능. 
+ex1의 ( )가 서브쿼리, 얻어지는 결과가 1개로 단일행 서브쿼리임
+
+*단일행 서브쿼리 예시
+┌ select dno, min(salary) from employee group by dno having min(salary) > (select min(salary) from employee where dno = 30);
+│  select ename, job, salary from employee where salary = (select min(salary) from employee);
+└  단일 행 서브쿼리 : 내부쿼리로 얻어지는 결과가 1개 ( 단일행 비교연산자 : = > >= < <= <> )
+
+다중 행 서브쿼리 : 내부쿼리로 얻어지는 결과가 여러개 ( 다중행 비교연산자 : IN ANY ALL SOME EXISTS )
+IN : 서브쿼리의 결과중 하나라도 일치하면..
+select eno, ename from employee where salary in(select min(salary) from employee group by dno);
+
+ANY, SOME : 서브쿼리의 결과가 하나 이상이 일치하면..
+< ANY : 최대값보다 작음
+> ANY : 최소값보다 큼
+= ANY : IN과 동일
+ select eno, ename, job, salary from employee where salary < any(select salary from employee where job = 'SALESMAN') and job <> 'SALESMAN';
+
+ALL : 서브쿼리의 결과가 모든 값이 일치하면..
+> ALL : 최대값보다 큼
+< ALL : 최소값보다 작음
+ select eno, ename, job, salary from employee where salary < all(select salary from employee where job = 'SALESMAN') and job <> 'SALESMAN';
+
+EXISTS : 서브쿼리의 결과중에 만족하는 값이 하나라도 존재하면..
+ select dno, dname from department d where exists (select dno from employee e where d.dno = e.dno);
+
+문제==
+select ename, job from employee where salary = (select salary from employee where eno = 7499);
+select ename, job from employee where salary > (select salary from employee where eno = 7499);
+select ename, job, salary from employee where salary = (select min(salary) from employee);
+select job, round(avg(salary),1) from employee group by job having round(avg(salary),1) = (select min(round(avg(salary),1)) from employee group by job);
+select eno, ename, job, salary from employee where salary < any(select salary from employee where job = 'ANALYST') and job <> 'ANALYST';
+select ename, hiredate from employee where dno = (select dno from employee where ename = 'BLAKE') and ename <> 'BLAKE';
+select eno, ename from employee where salary > (select avg(salary) from employee)order by salary;
+select count(salary) "평균급여보다 급여를 많이 받는 사원의 수" from employee where salary > (select avg(salary) from employee)order by salary;
+select ename, dno, job from employee where dno = (select dno from department where loc = 'DALLAS'); 
+select ename, salary from employee where manager = (select eno from employee where ename = 'KING');
+
+
+
+
+
+
+
+
+
+
 
 
 

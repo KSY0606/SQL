@@ -18,7 +18,7 @@ CREATE TABLE 테이블명 (컬럼명1 데이터타입,컬럼명2 데이터타입
 INSERT INTO 테이블명 VALUES(값,값,값.....);
  //  ex) insert into producttbl values('lg6952', '청소기', 12, 750000, '엘지');
 
-==============
+=================
 
 이미 생성된 테이블의 구조만 복사
 create table 새로 생성할 테이블이름 as select * from 기존 테이블 where 1=0;
@@ -38,7 +38,6 @@ update emp_copy set (job, salary) = (select job, salary from emp_copy where eno 
 사원번호가 7369와 업무가 동일한 모든 사원의 부서번호를 사원 7369의 현재 부서번호로 갱신하시오
 update emp_copy set dno = (select dno from emp_copy where eno = 7369) where job = (select job from emp_copy where eno = 7369);
 
+======================
 
-
-
-
+test

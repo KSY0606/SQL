@@ -1,5 +1,5 @@
 conn 사용자명/비밀번호   // 로그인해주기
-
+★★★★((  연습용 계정     dbtest / 12345  ))
 // 18c 버전이후 일 경우
 1 == create user c##사용자계정이름 identified by 비밀번호
 2-1 == alter session set "_ORACLE_SCRIPT"=true;
@@ -39,5 +39,17 @@ update emp_copy set (job, salary) = (select job, salary from emp_copy where eno 
 update emp_copy set dno = (select dno from emp_copy where eno = 7369) where job = (select job from emp_copy where eno = 7369);
 
 ======================
+테이블 생성
+create table customer (id varchar2(20) not null, pwd varchar2(20) not null, name varchar2(20) not null, phone varchar2(30), address varchar2(100));
+생성한 테이블에 행 추가
+insert into customer values ('hong', '12345', '홍길동', '010-1234-4567', 'seoul');
+
+
+
+
+
+
+
+
 
 test

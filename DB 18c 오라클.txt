@@ -98,6 +98,12 @@ ALTER TABLE 테이블명 DROP CONSTRAINTS 제약조건명;
 테이블의 모든 데이터를 제거
 truncate table 테이블명;
 
+제약조건 변경 
+alter table 테이블명 add constraint emp_copy_pk primary key(eno);
+alter table emp_copy add constraint emp_copy_fk foreign key(dno) references department(dno);
+
+
+
 *DDL*
 INSERT INTO employee_copy (eno, ename, job) values(8652, '김상윤', 'clerk');
 INSERT INTO employee_copy values(8888, '홍길동', 'SALESMAN', 7902, '22/08/23', 900, 0, 30);
@@ -298,6 +304,37 @@ revoke create session from testdb2;
 grant create session to testdb2;
 
 ==================================
+8 / 29
+데이터 무결성과 제약조건
+1. NOT NULL : 컬럼에 NULL값이 포함하지 못하도록 지정
+	( ex) 필수사항 // 아이디,비밀번호,연락처 등에 사용)
+2. UNIQUE : 테이블에 모든 레코드에 대해서 유일한 값을 갖도록 한다.
+3. PRIMARY KEY : NOT NULL + UNIQUE 결합한 형태 (기본키)
+	( ex) 제품번호, 학번, 주민번호 등에 사용)
+4.FOREIGN KEY : 참조된 테이블에 컬럼 값이 항상 존재 (참조키)
+5.CHECK : 저장 가능한 데이터 값의 범위나 조건을 지정하여
+	 설정된 값만 허용 
+
+
+create table emp_third (eno number(4) constraint emp_third_pk primary key, ename varchar2(10), salary number(7,2) default 1000);
+insert into emp_third values(6524, '김철수', 2000);
+insert into emp_third (eno, ename) values (7454, '이영희');
+결과 )
+ENO ENAME                    SALARY
+---------- -------------------- ----------
+      6524 김철수                     2000
+      7454 이영희                     1000   기본값이 1000이므로 입력안해도 기본적으로 1000이 출력됨
+- 테이블제약조건을 변경, emp_third라는 테이블의 ename을 not null하겠다.는 뜻
+- alter table emp_third modify ename constraint emp_third_nn not null;
+insert into emp_third values (6524,'박찬호', 3000); // 오류발생, 6524는 김철수의 eno로 primary key로 지정되어있어서 중복등록이 안됨
+alter table emp_third drop primary key; // primary key를 제거한다.
+다시 insert into emp_third values (6524,'박찬호', 3000); 입력시 등록됨. eno가 6524인 사원이 2명이됨
+alter table emp_third drop constraint emp_third_nn; //  ename을 null값으로 등록되도록 not null을 삭제함
+
+
+
+
+
 
 
 로그인 할 경우
@@ -305,3 +342,11 @@ grant create session to testdb2;
 비밀번호 : dkseho1!
 conn hr/9506
 을 입력해주면 사용 가능해짐.
+
+
+
+
+
+
+
+

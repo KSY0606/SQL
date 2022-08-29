@@ -1,0 +1,82 @@
+데이터 조작어 (DML : Data Manipulation Language)
+- INSERT (데이터 입력)  ex) 회원가입시 정보들이 저장
+- UPDATE (데이터 수정) ex) 회원가입수정(메일,주소)
+- DELETE (데이터 삭제)  ex) 회원탈퇴
+
+데이터 정의어 (DDL : Data Definition Language)
+- CREATE (데이터 베이스 객체 생성)
+- ALTER (데이터 베이스 객체 변경)
+- DROP (데이터 베이스 객체 삭제)
+
+=================================================
+
+● 사용자 계정 생성
+1 ) 18c 버전이후 일 경우 ↓ 
+create user c##사용자계정이름 identified by 비밀번호
+1 ) 18c 이전 버전 일 경우 ↓
+1-1 ) alter session set "_ORACLE_SCRIPT"=true;
+1-2 ) create user 사용자계정이름 identified by 비밀번호;
+2 ) grant create session to 사용자계정이름;
+3 ) grant create table to 사용자계정이름;
+4 ) alter user 사용자계정이름 default tablespace users quota unlimited on users;
+5 ) conn 사용자계정이름/비밀번호;
+
+=================================================
+
+● 테이블의 구조만 복사
+create table 새로 생성할 테이블 as select * from 기존 테이블 where 1=0;
+
+● 테이블의 구조와 레코드 복사
+create table 새로 생성할 테이블 as select * from 기존 테이블;
+
+● 테이블 삭제
+drop table 삭제 할 테이블명;
+
+● 컬럼 추가
+ALTER TABLE 테이블명 ADD 컬럼명 데이터타입;
+
+● 컬럼명 변경
+ALTER TABLE 테이블명 RENAME COLUMN 변경 전 컬럼명 TO 변경 후 컬럼명;
+
+● 컬럼 제거
+ALTER TABLE 테이블명 DROP COLUMN 컬럼명;
+
+● 타입 변경
+ALTER TABLE 테이블명 MODIFY 컬럼명 변경할타입;
+
+=================================================
+
+● NOT NULL : 컬럼에 NULL값이 포함하지 못하도록 지정
+	  ex) 필수사항 // 아이디,비밀번호,연락처 등에 사용)
+ex ) CREATE TABLE 테이블명 (dno number(2), dname varchar2(15) NOT NULL, loc varchar2(15));
+
+● UNIQUE : 테이블에 모든 레코드에 대해서 유일한 값을 갖도록 한다.
+ex ) CREATE TABLE 테이블명 (dno number(2) UNIQUE, dname varchar2(15) NOT NULL, loc varchar2(15));
+
+● PRIMARY KEY : NOT NULL + UNIQUE 결합한 형태 (기본키)
+	      ex)아이디, 주민번호, 사원번호 등 ) 테이블당 1번만 가능
+ex ) CREATE TABLE 테이블명 (dno number(2) PRIMARY KEY, dname varchar2(15) NOT NULL, loc varchar2(15));
+
+● 외래키 (Foreign key) - 참조된 테이블에 컬럼 값이 항상 존재 (참조키)
+
+=================================================
+● 테이블 생성
+1 ) CREATE TABLE 테이블명 (컬럼명1 데이터타입,컬럼명2 데이터타입,.....);
+2-1 ) INSERT INTO 테이블명 VALUES(값,값,값.....);
+2-2 ) INSERT INTO 테이블명(컬럼1,컬럼2) VALUES(값,값);
+
+● UPDATE  (테이블의 내용 수정)
+UPDATE 테이블명 SET 변경컬럼명=변경할값,...WHERE 조건;
+	   ※ where 조건을 안써주면 전부 바뀌어버림.
+ex ) update dept_copy set dnoname='programming' where dno='10';
+
+● DELETE  (테이블의 내용 삭제)
+DELETE from 테이블명 WHERE 조건;  ( from 생략가능)
+	   ※ where 조건을 안써주면 전부 삭제됨.
+ex ) delete employee_copy where eno = 7876;
+=================================================
+
+※ rollback;  : 처음상태로 돌려줌
+※ commit;  : 지금까지 작업한 내용이 저장됨, 이후로 rollback 안됨
+※ truncate table 테이블명;  : 테이블의 모든 데이터를 제거
+

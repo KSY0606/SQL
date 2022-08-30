@@ -54,27 +54,5 @@ drop view emp_dno_view;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ※ 개발자 생성한 모든 뷰를 보여줌
     select view_name, text from user_views;

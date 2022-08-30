@@ -143,7 +143,7 @@ insert into 테이블명(컬럼1,컬럼2) values(값,값);
 문자 데이터 타입
 컬럼명 between A and B - 특정컬럼의 데이터값이
 하한값(A)와 상한값(B) 사이에 포함되는 자료 검색
-ex) select * from employee where salary beetween 1000 and 1500;
+ex) select * from employee where salary between 1000 and 1500;
     ㄴ 1000 ~ 1500 사이 출력
      between 앞에 not을 붙여주면 0~999와 1501~ 를 출력
 

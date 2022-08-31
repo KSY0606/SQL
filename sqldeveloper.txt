@@ -1,0 +1,141 @@
+PL/SQL(Procedural Language for SQL)- 절차적 프로그래밍
+
+인덱스 : 테이블에 있는 데이터를 빨리 찾기 위한 용도의 데이터베이스객체
+오라클 내부에서 컬럼을 찾기 위해 트리구조로 만들어짐
+
+** 인덱스를 만드는 이유     <=>     사용하지 말아야 할 경우
+1. 테이블에 행의 수가 많을 경우 <=> 테이블에 행의 수가 적을때
+2. where문에 해당 컬럼이 많이 사용될때
+3. 검색결과가 전체 데이터의 2% ~ 4% 정도일때 <=> 10% ~ 15%
+
+CREATE INDEX  인덱스이름 ON 테이블명(컬럼명);
+
+select index_name, table_name, column_name from user_ind_columns where table_name in('EMPLOYEE', 'DEPARTMENT');
+
+인덱스 생성
+CREATE INDEX idx_emp_ename ON employee(ename);
+
+인덱스 제거
+DROP INDEX idx_emp_ename;
+
+고유 인덱스
+CREATE UNIQUE INDEX idx_emp_ename ON employee(ename);
+비고유 인덱스
+CREATE INDEX idx_emp_ename ON employee(ename);
+결합 인덱스    department의 dname과 loc를 하나로 묶어서 인덱스 생성
+CREATE INDEX idx_emp_dept_com ON department(dname, loc);
+함수 기반 인덱스
+CREATE INDEX idx_emp_sal_cal ON employee(salary*12);
+
+===============================
+● 시노님(Synonym) : 동의어
+
+CREATE OR REPLACE  SYNONYM syn_emp FOR employee;
+ ㄴ employee테이블에 별명을 달아주는 것.(syn_emp)
+
+** 시노님 권한 부여
+시스템계정에서 grant select on hr.syn_emp to productdb;
+(( grant 후 제품계정에서 select * from hr.syn_emp; 작성시 employee 출력))
+
+** 시노님 권한 삭제
+시스템 계정에서 drop synonym syn_emp;
+
+
+** 권한 부여
+시스템 계정에서 grant select on hr.employee to productdb;
+ ㄴ productdb에서 hr안의 employee테이블을 검색 할 수 있는 권한을 준다는 뜻.
+ ㄴ grant select, update, delete hr.~~~로 쓰면 전부 권한을 받게 됨
+(( grant 후 제품계정에서 select * from hr.employee; 작성시 employee 출력))
+
+** 권한 삭제
+시스템 계정에서 revoke select on hr.employee from productdb;
+(( revoke 후 제품계정에서 select * from hr.employee; 작성시 employee 미출력))
+
+
+● 시퀸스 생성 : 자동 순번을 반환하는 데이터베이스 객체
+CREATE SEQUENCE 시퀸스이름
+INCREMENT BY 증감숫자
+START WITH 시작숫자  // 시작숫자 미작성시 1부터시작. 100작성시 100부터 시작
+MINVALUE 최소값
+MAXVALUE 최대값
+CYCLE  최대값에 도달시 최소값으로 돌아감
+CACHE 메모리에 공간할당
+
+구조만 복사 ( 데이터는 복사X )
+CREATE TABLE dept_copy2 as select * from department where 0=1;
+
+CREATE SEQUENCE dno_seq INCREMENT BY 10 START WITH 10;
+ ㄴ 시작값을 10으로 하고 10씩 증가한다.
+INSERT INTO dept_copy2 VALUES(dno_seq.nextval, 'ACCOUNTING', 'NEW YORK');
+ ㄴ dno 자리에 시작값인 10 출력.
+INSERT INTO dept_copy2 VALUES(dno_seq.nextval, '영업부', 'SEOUL');
+ ㄴ dno 자리에 20이 출력  nextval때문에 자동으로 증가된 값이 출력
+select dno_seq.currval from dual; 
+ ㄴ 현재까지 쓰여진 시퀴스의 순번이 보여짐.  // currval : 현재값을 보여줌.
+
+** 시퀸스 삭제
+drop sequence don_seq;	
+
+
+● MERGE문 : 조건을 비교해서 테이블에 해당 조건에 맞는 데이터가 없으면
+		insert 해주고, 있으면 update 해주는 문장.
+
+MERGE INTO 테이블명
+   USING (update나 insert될 데이터 원천)
+   ON (update될 조건)
+WHEN MATCHED THEN
+   UPDATE SET 컬럼1=값1, 컬럼2=값2...
+WHERE update 조건
+   DELETE WHERE update_delete 조건
+WHEN NOT MATCHED THEN
+   INSERT (컬럼1, 컬럼2...) VALUES(값1, 값2...)
+   WHERE insert조건;
+
+ ** 위 merge문 작성한 것 활용 예시.
+merge into emp ec
+   using (select eno, salary, manager from employee where manager = 7451) eo
+   on (ec.eid = eo.eno)
+when matched then
+   update set ec.bonus = eo.salary*0.3
+when not matched then
+   insert (ec.eid, ec.bonus) values (eo.eno, eo.salary*0.1)
+   where (eo.salary > 3000);
+
+ * emp 라는 테이블 생성
+CREATE TABLE emp (eid number(4), bonus number(7));
+insert into emp values (1451, 0);   //  레코드 추가
+insert into emp values (1501, 0);
+insert into emp values (1743, 0);
+insert into emp values (1812, 0);
+insert into emp values (1941, 0);
+
+
+
+===========================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+문제) employee 테이블에서 담당업무가 'SALESMAN'인 사원들의
+       사원번호, 이름, 급여 컬럼만 emp_copy2 테이블에 추가하시오.
+CREATE TABLE emp_copy2 as select * from employee where 1=0; // 구조만 복사함.
+insert into emp_copy2 (eno, ename, salary) select eno, ename, salary from employee where job = 'SALESMAN';
+ * emp_copy2 테이블에서 job컬럼 삭제
+   ㄴ ALTER TABLE emp_copy2 DROP COLUMN job;
+
+
+
+

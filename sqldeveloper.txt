@@ -110,8 +110,211 @@ insert into emp values (1812, 0);
 insert into emp values (1941, 0);
 
 
-
 ===========================================
+===========================================9/1
+* SQL (structured query language) : 데이터베이스를 구축하고
+				활용하기 위해 사용되는 언어
+* 데이터 정의어(DDL) , 데이터조작어(DML)
+* PL/SQL : 오라클에서 지원하는 프로그래밍 언어의 특성을 수용하여 SQL에서는
+	 사용할 수 없는 절차적 프로그래밍 기능
+
+grant select on hr.employee to public;
+ ㄴ 뒤에 테이블 명을 적지 않으면 모든 사용자에게 권한을 줌
+
+권한해제
+revoke select on hr.employee from productdb;
+ ㄴ productdb 테이블에서도 employee가 출력되는걸 막음
+
+1. 변수, 상수 등을 선언
+2. if문을 사용하여 조건에 따라 문장들을 분기
+3. loof문을 사용하여 일련의 문장을 반복적으로 실행
+4. 커서를 사용하여 여러 행을 검색
+
+declare 선언부
+begin 실행부
+exception 예외처리부
+END; 를 써줘야함. 하나의 명령블럭이 끝났다는 것을 명시.
+ ** 맨 마지막에 / 를 꼭 작성해야 PL/SQL 종결된거로 간주해 쿼리문을 수행해줌.
+     ㄴ sql plus에서 사용할 경우!
+단일행 주석 --    ,   여러행 주석 /*  */
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ DECLARE 예시
+DECLARE
+   num number;
+   BEGIN
+      num:=50;
+      DBMS_OUTPUT.PUT_LINE('오라클 PL/SQL 입문 환영');
+      DBMS_OUTPUT.PUT_LINE(num);
+   END;
+   /
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+boolean => true, false, null 
+integer
+상수명 constatnt 데이터타입 := 상수값;
+
+declare
+a integer := 10*50+5*6;
+begin
+dbms_output.put_line('a의 결과=' || to_char(a));
+   END;
+   /
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ  문제2↓
+v_eno number(4);
+v_ename employee.ename%type;
+
+v_eno employee.eno%type;
+ dbms_output.put_line('사원번호    사원이름');
+ dbms_output.put_line('==============');
+ select eno, ename into v_eno, v_ename from employee where ename = 'SCOTT';
+ ㄴ emlployee의 eno와 ename을 v_eno , v_ename에 할당해준다.  where ename이 SCOTT인 사원만
+ dbms_output.put_line(v_eno || '    ' || v_ename);
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+========================================== 문제3,4↓
+***** IF *****		● 조건문
+if 조건 then    // 조건이 만족하면 then 밑의 명령문들 수행.   ● 조건문
+ 명령문;
+ ....
+END if;
+*************
+if 조건 then    // 조건이 거짓일 경우 else 실행
+ 명령문;
+ ....;
+else
+ 명령문;
+ ....;
+END if;
+*************
+if 조건 then
+ 명령문;
+ ....;
+elsif 조건 then
+ 명령문;
+ ....;
+ elsif 조건 then
+ 명령문;
+ ....;
+ else
+ 명령문;
+  ....;
+END if;
+
+==========================================
+***** LOOP *****		● 반복문
+loop
+ 명령문;
+ ...;
+ exit when 조건;
+end loop;
+
+● 구구단 예제
+declare
+ dan number := 9;
+  i number := 1;
+begin
+ dbms_output.put_line('**' || dan || '단 **');
+ loop
+  dbms_output.put_line(dan || ' X ' || i || ' = ' || dan * i);
+  i := i+1;
+  exit when i > 9;
+end loop;
+end;
+/
+
+***** FOR *****
+for 변수 in 초기값.. 최종값
+ loop
+ 명령문 ...
+ ...
+end loop;
+
+● for 예제   ( loop 예제와 큰 차이 없음 )
+declare
+ dan number := 9;
+  i number := 1;
+begin
+ dbms_output.put_line('**' || dan || '단 **');
+ for i in 1..9                 //  for i in reverse 1..9 로 작성시 거꾸로 돔
+ loop
+  dbms_output.put_line(dan || ' X ' || i || ' = ' || dan * i);
+end loop;
+end;
+/
+
+
+***** WHILE *****
+while 조건 loop
+ 명령문...
+ ...
+end loop;
+
+● while 예제      // i := i+1; 미작성시 무한루프
+declare
+ dan number := 9;
+  i number := 1;
+begin
+ dbms_output.put_line('**' || dan || '단 **');
+ while i <= 9
+ loop
+  dbms_output.put_line(dan || ' X ' || i || ' = ' || dan * i);
+  i := i+1;
+end loop;
+end;
+/
+
+==========================================
+***** CURSOR *****
+커서 : 특정 SQL문장을 처리한 결과를 담고 있는 영역을 가리키는 일종의 포인터
+
+선언부
+cursor 커서명 is 문장;   // 문장 = select문
+실행부
+open 커서명;
+fetch 커서명 into 변수명;
+close 커서명
+
+커서의 속성
+%NOTFOUND : 커서 영역의 자료가 모두 FETCH 되었으면 TRUE
+%FOUND : 커서 영역에 FETCH 되지 않은 자료가 있다면 TURE
+%ISOPEN : 커서가 오픈된 상태이면 TRUE
+%ROWCOUNT : 커서가 얻어 온 레코드의 개수
+
+● cursor 예제
+declare
+ v_dept department%rowtype;
+ cursor c1 is select * from department;
+begin
+ dbms_output.put_line('부서번호   부서명   지역명');
+ dbms_output.put_line('======================');
+ open c1;
+ loop
+  fetch c1 into v_dept.dno, v_dept.dname, v_dept.loc;
+  exit when c1%notfound;
+  dbms_output.put_line(v_dept.dno || '   ' || v_dept.dname || '   ' || v_dept.loc);
+ end loop;
+ close c1;
+end;
+/
+
+***부서번호가 10 인 사원들만 출력.
+declare
+ v_emp employee%rowtype;
+ cursor c1 is select eno, ename, job, salary from employee where dno = 10;
+begin
+ dbms_output.put_line('사원번호   이름   업무명   급여');
+ dbms_output.put_line('==============================');
+ open c1;
+ loop
+  fetch c1 into v_emp.eno, v_emp.ename, v_emp.job, v_emp.salary;
+  exit when c1%notfound;
+  dbms_output.put_line(v_emp.eno || '   ' || v_emp.ename || '   ' || v_emp.job || '   ' || v_emp.salary);
+ end loop;
+ dbms_output.put_line('==============================');
+ dbms_output.put_line('총 검색 자료수 = ' || c1%rowcount);
+ close c1;
+end;
+/
+
+==========================================
 
 
 
@@ -129,13 +332,80 @@ insert into emp values (1941, 0);
 
 
 
-문제) employee 테이블에서 담당업무가 'SALESMAN'인 사원들의
+
+
+
+
+
+변수명 데이터타입 := 초기값;
+
+*  || 는 or가 아니라 이어주는 역할
+
+
+
+문제1) employee 테이블에서 담당업무가 'SALESMAN'인 사원들의
        사원번호, 이름, 급여 컬럼만 emp_copy2 테이블에 추가하시오.
 CREATE TABLE emp_copy2 as select * from employee where 1=0; // 구조만 복사함.
 insert into emp_copy2 (eno, ename, salary) select eno, ename, salary from employee where job = 'SALESMAN';
  * emp_copy2 테이블에서 job컬럼 삭제
    ㄴ ALTER TABLE emp_copy2 DROP COLUMN job;
 
+문제2) 사원번호가 7902인 사원의 이름과 부서명을 출력하시오.
+declare
+v_ename employee.ename%type;
+v_dname department.dname%type;
+begin
+select d.dname, e.ename into v_dname, v_ename from employee e, department d  where e.dno = d.dno and e.eno = 7902;
+dbms_output.put_line(v_dname || ' => ' || v_ename);
+END;
+/
 
+문제3) 사원정보 테이블만 이용해서 SCOTT사원에 대한 정보를 다음과 같이 출력하시오.
+사원번호   이름   부서명
+declare
+v_eno employee.eno%type;
+v_ename employee.ename%type;
+v_dno employee.dno%type;
+v_dname varchar2(20) := null;
+begin
+select eno,ename,dno into v_eno, v_ename, v_dno from employee where ename='SCOTT';
+if (v_dno = 10) then
+ v_dname := 'ACCOUNTING';
+elsif (v_dno = 20) then
+ v_dname := 'RESEARCH';
+elsif (v_dno = 30) then
+ v_dname := 'SALESMAN';
+elsif (v_dno = 40) then
+ v_dname := 'OPERATIONS';
+end if;
+dbms_output.put_line('사원번호   이름   부서명');
+dbms_output.put_line('=================');
+dbms_output.put_line(v_eno || '   ' || v_ename || '   ' || v_dname);
+end;
+/
 
+문제4) if문을 이용해 KING 사원의 부서번호를 얻어와서 부서번호에 따른 부서명과 지역명을 출력하시오.
+declare
+ v_dno employee.dno%type;
+ v_eno employee.eno%type;
+ v_ename employee.ename%type;
+ v_dname varchar2(20) := null;
+ v_dloc varchar2(20) := null;
+begin
+select eno,ename,dno into v_eno, v_ename, v_dno from employee where ename='KING';
+if (v_dno = 10) then
+ v_dname := 'ACCOUNTING';
+ v_dloc := 'NEW YORK';
+ elsif (v_dno = 20) then
+  v_dname := 'RESEARCH';
+  v_dloc := 'DALLAS';
+ elsif (v_dno = 30) then
+  v_dname := 'SALES';
+  v_dloc := 'CHICAGO';
+end if;
+dbms_output.put_line('사원번호   사원이름   부서명   지역명');
+dbms_output.put_line('======================================');
+dbms_output.put_line(v_eno || '   ' || v_ename || '   ' || v_dname || '   ' || v_dloc);
+end;
+/
 

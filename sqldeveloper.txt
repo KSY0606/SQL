@@ -315,22 +315,104 @@ end;
 /
 
 ==========================================
+========================================== 9 / 2
+						   문제 5 ↓
+PL/SQL  프로그램의 종류는 함수, 프로시저, 트리거로 나뉜다.
+create or replace function 함수이름(매개변수...)
+return 데이터타입
+is 변수, 상수 등을 선언
+begin
+명령문..
+...
+return 반환값;
+exception 예외처리	부 	// 자주 생략됨
+end;
+
+매개변수 없을경우			매개변수 있을 경우
+함수명()				  함수명(매개변수)
+
+↓ 함수 만들고 출력 예시 // NONEDITIONABLE 는 저장시 자동생성됨
+
+create or replace NONEDITIONABLE function fn_salary_name(v_ename in employee.ename%type)
+return number
+is v_salary number(7,2);
+begin
+ select salary into v_salary from employee where ename = v_ename;
+ return v_salary;
+ end;
+
+variable v_salary number;
+execute :v_salary:=fn_salary_name('SCOTT');
+print v_salary;
 
 
+***2번예제
+create or replace NONEDITIONABLE function my_mod(num1 number, num2 number)
+return number
+is 
+ v_remain number := 0; --반환할 나머지값
+ v_quot number := 0; -- 몫
+begin
+ v_quot := floor(num1 / num2);
+ v_remain := num1 - (num2 * v_quot);
+ return v_remain;
+end;
+
+select my_mod (20,3) 나머지 from dual;
+
+=========================================
+
+프로시저 : 특정한 로직처리 (서브 프로그램)  //  함수와 다르게 return이 없음.
+create or replace procedure 프로시저이름(매개변수 ...)
+is
+변수, 상수 등 선언
+begin
+ 명령문...
+ ....
+end;
 
 
+*** 예제1
+create or replace procedure sp_salary
+is
+v_salary employee.salary%type;
+begin
+ select salary into v_salary from employee where ename = 'SCOTT';
+ dbms_output.put_line('SCOTT의 급여는 ' || v_salary);
+end;
 
+execute sp_salary
 
+☆ drop procedure sp_salary;  // SQL PLUS를 사용할 경우 !  입력하면 삭제됨. developer도 가능.
 
+*** 예제2
+create or replace procedure salary_name(v_ename in employee.ename%type)
+is
+v_salary employee.salary%type;
+begin
+ select salary into v_salary from employee where ename = v_ename;
+ dbms_output.put_line(v_ename || '의 급여는 ' || v_salary);
+end;
 
+exec salary_name('KING');
 
+*** 예제3
+create or replace procedure new_product
+(p_id in producttbl.productid%type,
+p_name in producttbl.productname%type,
+p_amount in producttbl.amount%type,
+p_price in producttbl.price%type,
+p_maker in producttbl.maker%type) is
+begin
+ insert into producttbl values(p_id, p_name, p_amount, p_price, p_maker);
+ commit;
+end;
 
+exec new_product('sb5412', '스마트TV', 30, 860000, '삼보');
 
+exec new_product('ss6545', '컴퓨터', 15, 1200000, '삼성');
 
-
-
-
-
+select * from producttbl;
 
 
 
@@ -408,4 +490,84 @@ dbms_output.put_line('======================================');
 dbms_output.put_line(v_eno || '   ' || v_ename || '   ' || v_dname || '   ' || v_dloc);
 end;
 /
+
+=========================================
+		1 ~ 100 구하기 예제 3개 ( loop, for, while )
+** loop 예제
+declare
+ num number := 1;
+ tot number := 0;
+begin
+ loop
+ tot := tot + num;
+ num := num + 1;
+ exit when num > 100;
+end loop;
+ dbms_output.put_line('1부터 100까지의 합 = ' || tot);
+end;
+/
+
+** for 예제
+declare
+ tot number := 0;
+begin
+ for num in 1 .. 100 loop
+ tot := tot + num;
+ exit when num > 100;
+end loop;
+ dbms_output.put_line('1부터 100까지의 합 = ' || tot);
+end;
+/
+
+** while 예제
+declare
+ tot number := 0;
+ num number := 1;
+begin
+ while num <= 100 loop
+ tot := tot + num;
+ num := num + 1;
+end loop;
+ dbms_output.put_line('1부터 100까지의 합 = ' || tot);
+end;
+/
+=========================================
+commission이 null이 아닌 사원을 출력, 이름을 기준으로 오름차순 정렬하라
+
+** cursor 예제
+declare
+ v_emp employee%rowtype;
+ cursor res is select eno, ename, salary from employee where commission is not null order by ename;
+begin
+ dbms_output.put_line('사원번호   이름   급여');
+ dbms_output.put_line('========================');
+ open res;
+ loop
+ fetch res into v_emp.eno, v_emp.ename, v_emp.salary;
+  exit when res%notfound;
+  dbms_output.put_line(v_emp.eno || '   ' || v_emp.ename || '   ' || v_emp.salary);
+ end loop;
+ close res;
+end;
+/
+
+문제5 ) 사원이름을 입력받아 해당 사원의 부서명을 출력하는 함수를 작성하라.
+create or replace function fn_get_name(v_ename in employee.ename%type)
+return varchar2
+is v_dname varchar2(15);
+begin
+ select d.dname into v_dname from employee e, department d where e.dno = d.dno and v_ename = e.ename;
+ return v_dname;
+end;
+
+select fn_get_name('SCOTT') 스콧근무부서, fn_get_name('KING') 킹근무부서 from dual;
+
+
+
+
+
+
+
+
+
 

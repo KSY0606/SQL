@@ -150,7 +150,7 @@ DECLARE
 ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 boolean => true, false, null 
 integer
-상수명 constatnt 데이터타입 := 상수값;
+상수명 constatnt 데이터타입 := 상수값; 
 
 declare
 a integer := 10*50+5*6;

@@ -1,0 +1,54 @@
+1. 사원정보 테이블에서 커미션이 NULL이 아닌 사원의 사원번호, 이름, 급여를
+    출력하되 급여를 기준으로 내림차순 정렬한 결과를 나타내는 프로시저를
+    생성하시오.
+
+create or replace NONEDITIONABLE procedure pd_commission
+ is
+ cursor c1
+ is select * from employee where commission is not null order by salary desc;
+begin
+ dbms_output.put_line('사원번호   이름   급여');
+ dbms_output.put_line('========================');
+ for v_emp in c1 loop
+   exit when c1%notfound;
+   dbms_output.put_line(v_emp.eno || '     ' || v_emp.ename || '     ' || v_emp.salary);
+   end loop;
+end;
+
+exe pd_commission     // dbms출력창에 출력됨.
+
+
+
+
+1. 분기별 영업실적을 저장하는 테이블을 생성하시오. ( saleResult )
+create table saleResult(dname varchar2(15), q1nd number(5), q2nd number(5), q3nd number(5), q4nd number(5), tot number(7), rank number(2));
+
+2. 부서명, 1분기~4분기 실적을 입력하면 실적총합이 자동 계산되는 트리거 작성
+create or replace trigger tri_sales after insert
+on saleResult
+begin
+ update saleResult set tot = q1nd + q2nd + q3nd + q4nd;
+end;
+
+insert into saleResult(dname,q1nd,q2nd,q3nd,q4nd) values('영업5부', 2000, 2700, 1250, 1510);
+// 영업1부~영업5부 작성해줌
+
+3. 등수를 구하는 저장 프로시저를 작성하고 이를 호출실행하여 등수가 제대로 구해지는지 확인
+create or replace procedure sales_rank
+is
+v_sales saleResult%rowtype;
+v_temp_rank saleResult.rank%type;
+cursor cs_sales
+is
+select * from saleResult order by tot desc;
+begin
+ v_temp_rank := 1;
+ for v_sales in cs_sales loop
+  exit when cs_sales%notfound;
+  update saleResult set rank = v_temp_rank where dname = v_sales.dname;
+  v_temp_rank := v_temp_rank + 1;
+  end loop;
+end;
+ 
+exec sales_rank;  // 프로시저 실행
+

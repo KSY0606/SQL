@@ -12,7 +12,7 @@ CREATE INDEX  인덱스이름 ON 테이블명(컬럼명);
 
 select index_name, table_name, column_name from user_ind_columns where table_name in('EMPLOYEE', 'DEPARTMENT');
 
-인덱스 생성
+인덱2스 생성
 CREATE INDEX idx_emp_ename ON employee(ename);
 
 인덱스 제거
@@ -414,10 +414,66 @@ exec new_product('ss6545', '컴퓨터', 15, 1200000, '삼성');
 
 select * from producttbl;
 
+===========================================
+=========================================== 9 / 5
+
+사원이름으로 조회해서 사원의 급여를 얻어오기 위해 급여를 OUT으로 지정
+
+일반 실행 프로시저 : execute 프로시저 이름
+OUT을 지정한 프로시저
+1. OUT 매개변수로 나올 변수를 선언
+2. OUT 매개변수에서 값을 받아오기 위해서 프로시저 호출 변수 앞에 :을 덧붙임
+3. 프로시저에서 얻어온 결과값을 저장하고 있는 바인드변수를 출력하기 위해 print 명령문을 사용
+
+create procedure pd_salary_ename (v_ename in employee.ename%type, v_salary out employee.salary%type)
+is
+begin
+ select salary into v_Salary from employee where ename=v_ename;
+end;
+
+variable v_salary varchar2(14);
+execute pd_salary_ename('SCOTT', :v_salary);
+print v_salary;
 
 
+트리거 : 어떤 이벤트가 발생했을때 내부적으로 실행되도록 데이터베이스에 저장된 프로시저를 말한다.
+( 이벤트가 발생하면 자동으로 실행되는 프로시저 )
+함수나 프로시저는 사용자가 원할때 execute문으로 직접 호출하여 실행
+AFTER 트리거 : DML( INSERT, UPDATE, DELETE ) 등의 작업이 일어난 후에 실행되는 프로시저
+BEFORE 트리거 : 이벤트가 발생하기 전에 작동하는 프로시저
+CREATE TRIGGER 트리거이름
+타이밍[BEFORE | AFTER] 이벤트[INSERT | UPDATE | DELETE]
+
+ON 테이블이름
+ ...
+BEGIN
+ 명령문
+ ...
+END;
+
+:NEW.컬럼명 : 변경 후의 컬럼
+:OLD.컬럼명 : 변경 전의 컬럼  
+
+create or replace trigger tri_dept after insert   -- insert 이후에 자동적으로 실행되도록 작성.
+on dept_original for each row 
+begin
+ insert into dept_back values(:new.dno, :new.dname, :new.loc); 
+end;
+
+insert into dept_original values(10, 'ACCOUNTING', 'NEW YORK');
+
+select * from dept_back;  ,  select * from dept_original;  모두 값이 같음
+
+ // dept_original에 insert를 하면 dept_back에 자동적으로 trigger가 실행됨
 
 
+create or replace trigger tri_del after delete
+on dept_original for each row
+begin
+ delete from dept_back where dept_back.dno = :old.dno;
+end;
+
+===============================================
 
 변수명 데이터타입 := 초기값;
 
@@ -561,8 +617,6 @@ begin
 end;
 
 select fn_get_name('SCOTT') 스콧근무부서, fn_get_name('KING') 킹근무부서 from dual;
-
-
 
 
 

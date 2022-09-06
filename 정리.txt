@@ -80,3 +80,38 @@ ex ) delete employee_copy where eno = 7876;
 ※ commit;  : 지금까지 작업한 내용이 저장됨, 이후로 rollback 안됨
 ※ truncate table 테이블명;  : 테이블의 모든 데이터를 제거
 
+=================================================
+** 권한 부여
+시스템 계정에서 grant select on hr.employee to productdb;
+
+** 권한 삭제
+시스템 계정에서 revoke select on hr.employee from productdb;
+
+=================================================
+
+● 시노님(Synonym)
+
+** 시노님 권한 부여
+시스템계정에서 grant select on hr.syn_emp to productdb;
+(( grant 후 제품계정에서 select * from hr.syn_emp; 작성시 employee 출력))
+
+** 시노님 권한 삭제
+시스템 계정에서 drop synonym syn_emp;
+
+=================================================
+
+● 시퀸스  : 자동 순번을 반환하는 데이터베이스 객체
+
+CREATE SEQUENCE dno_seq INCREMENT BY 10 START WITH 10;
+ ㄴ 시작값을 10으로 하고 10씩 증가
+select dno_seq.currval from dual; 
+ ㄴ 현재까지 쓰여진 시퀴스의 순번이 보여짐.  // currval : 현재값을 보여줌.
+
+** 시퀸스 삭제
+drop sequence don_seq;	
+
+=================================================
+
+● CURSOR 
+커서 : 특정 SQL문장을 처리한 결과를 담고 있는 영역을 가리키는 일종의 포인터
+

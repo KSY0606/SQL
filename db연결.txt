@@ -1,0 +1,104 @@
+alter session set "_ORACLE_SCRIPT"=true;
+create user mycgvdb identified by 9506;
+grant create session to mycgvdb;
+grant resource, connect to mycgvdb;
+alter user mycgvdb default tablespace users quota unlimited on users;
+
+
+서버 프로그램을 웹 애플리케이션이라고 함
+ - html5, css3, javascript, 서블릿, jsp, xml, java클래스, oracle
+
+		* 수동으로 만들 경우 *
+		웹 애플리케이션 이름
+			ㄴ WEB_INF
+			         ㄴ  classes
+			         ㄴ  lib
+			         ㄴ  web.xml 
+
+
+1.컨테이너에 웹 애플리케이션 등록
+등록방법1) 디렉터리에 애플리케이션을 등록
+등록방법2) server.xml에 직접 웹 애플리케이션을 등록   // server.xml을 메모장으로 열어 아래 context path를 추가해주면 주소창에 입력시 들어가짐.
+                                                                       // tomcat10 > conf > 안에 server.xml 있음
+※ 컨텍스트란?
+
+<Context path="/컨텍스트이름"
+  docBase="c:\ezenshop"
+  reloadable="true"/>
+
+
+톰캣 컨테이너에서의 웹 애플리케이션 동작 과정
+1. 웹 브라우저에서 컨텍스트 이름(webMal)으로 요청함
+2. 요청을 받은 톰캣 컨테이너는 요청한 컨텍스트 이름이 server.xml에 있는지 확인함
+3. 해당 컨텍스트 이름이 있으면 컨텍스트의 실제 경로(웹 애플리케이션이 있는 경로 c:\ezenshop)가서
+요청한 index.html을 클라이언트의 웹 브라우저로 전송
+4. 웹 브라우저는 전송된 index.html을 브라우저에 나타냄
+
+웹 애플리케이션 서비스하기
+1. 개발한 웹 애플리케이션을 실제 사용자에게 서비스하기 위해 배치(deploy)
+ 하는 방법
+1. 톰캣에 배치하기
+file > export > web(WAR file) next > browser ( c드라이브 > tomcat > webapps ) 저장 > finish
+하단 servers창에서 톰캣 정지, 이클립스 종료 후 톰캣폴더에서 톰캣 실행해주면 톰캣폴더>webapps에 자동 생성됨
+
+
+서블릿이란?
+ 서버쪽에서 실행되면서 클라이언트의 요청에 따라
+ 동적으로 서비스를 제공하는 자바 클래스
+servlet		servletConfig
+
+	GenericServlet
+
+	HttpServlet
+
+서블릿의 생명주기 메서드
+init() 메서드 > 서블릿 요청시 맨 처음 한번만 호출
+		(서블릿 생성시 초기화 작업)
+doGet(), doPost() 메서드 > 서블릿 요청시 매번 호출
+		(실제로 사용자가 요청하는 작업을 수행)
+예) doget은 네이버에 강아지,고양이 검색시 주소창에 같이 보이지만
+    dopost는 아이디 비밀번호 입력시 주소창에 보이지않게 가려짐
+destroy() > 서블릿이 기능을 수행하고 메모리에서 소멸될때 호출
+		(서블릿 마무리 작업에 주로 수행)
+
+source override 안에 init, doget, destroy 선택후 실행
+
+1. 사용자 정의 서블릿 클래스 만들기
+2. 서블릿 생명주기 메서드 구현
+3. 서블릿 매핑 작업
+4. 웹 브라우저에서 서블릿 매핑이름으로 요청
+
+
+서블릿에서 사용하는 API 는 servlet-api.jar에 있음
+
+
+실제로 브라우저의 요청을 처리하는 서블릿 제작
+
+servlet01프로젝트 우클릭 new>package
+생성된 package에서 우클릭 new > class 생성
+**이클립스에서 웹 프로젝트 개발**
+file > new > Dynamic Web Project  
+web.xml 체크해주고 생성
+src > main > webapp 폴더에서 html 생성
+
+생성 후 아래창에서 server 생성 // tomcat 위치 설정후 저장.
+servers폴더 생성후, 아래 servers창에서 우클릭후 add and remove 클릭해 폴더 추가.
+html 작성 후 주소창에 http://127.0.0.1:8090/ezenshop/index.html 입력시 출력됨
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////
+web.xml에
+<servlet>
+  	<servlet-name>first</servlet-name>	// 아래 FirstServlet을 호출하기 위한 first이름 설정?
+  	<servlet-class>servlet01.ex01.FirstServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>first</servlet-name> // 위 servlet-name과 동일
+  	<url-pattern>/fs</url-pattern>	// 위 servlet-name을 주소창에 입력할 글자.
+  </servlet-mapping>
+
